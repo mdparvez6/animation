@@ -119,7 +119,7 @@ for(const x of [-1.25,1.35]){
  cross.position.set(x,.78,0);cross.castShadow=true;scene.add(cross);
 }
 const saw=new THREE.Group();
-saw.position.set(-1.15,1.92,1.02);
+saw.position.set(-1.15,1.42,1.02);
 saw.rotation.z=-.12;
 scene.add(saw);
 
@@ -176,6 +176,7 @@ loader.load(HUMAN_URL,gltf=>{
  worker.scale.setScalar(targetHeight/Math.max(size.y,0.001));
  const scaledBox=new THREE.Box3().setFromObject(worker);
  worker.position.set(-1.85,-scaledBox.min.y,1.28);
+ const workerBaseY=worker.position.y;
  worker.rotation.y=Math.PI;
  worker.traverse(o=>{
   if(o.isMesh){o.castShadow=true;o.receiveShadow=true;
@@ -224,7 +225,7 @@ function animate(){
 
  if(mixer&&playing)mixer.update(dt);
  if(worker){
-  worker.position.y=Math.max(worker.position.y,0)+Math.abs(Math.sin(time*2.1))*.006;
+  worker.position.y=workerBaseY+Math.abs(Math.sin(time*2.1))*.006;
   // Make the loaded humanoid lean into the work and drive both arms with the saw stroke.
   worker.rotation.z=-.055+Math.sin(time*2.1)*.018;
   if(armL)armL.rotation.z+=stroke*.035;
