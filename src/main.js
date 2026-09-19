@@ -158,7 +158,7 @@ for(let i=0;i<110;i++){
  dustGroup.add(p);dust.push(p);
 }
 
-let worker=null,mixer=null,armL=null,armR=null,foreL=null,foreR=null,handL=null,handR=null;
+let worker=null,mixer=null,armL=null,armR=null,foreL=null,foreR=null,handL=null,handR=null,workerBaseY=0;
 const loader=new GLTFLoader();
 const HUMAN_URL='https://raw.githubusercontent.com/kunalkushwaha/vsim/main/packages/assets/library/human.glb';
 
@@ -176,7 +176,7 @@ loader.load(HUMAN_URL,gltf=>{
  worker.scale.setScalar(targetHeight/Math.max(size.y,0.001));
  const scaledBox=new THREE.Box3().setFromObject(worker);
  worker.position.set(-1.85,-scaledBox.min.y,1.28);
- const workerBaseY=worker.position.y;
+ workerBaseY=worker.position.y;
  worker.rotation.y=Math.PI;
  worker.traverse(o=>{
   if(o.isMesh){o.castShadow=true;o.receiveShadow=true;
