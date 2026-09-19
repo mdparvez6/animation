@@ -119,14 +119,15 @@ for(const x of [-1.25,1.35]){
  cross.position.set(x,.78,0);cross.castShadow=true;scene.add(cross);
 }
 const saw=new THREE.Group();
-saw.position.set(-1.15,1.42,1.02);
+const sawBaseX=-1.30;
+saw.position.set(sawBaseX,1.42,1.02);
 saw.rotation.z=-.12;
 scene.add(saw);
 
 const bladeMat=new THREE.MeshStandardMaterial({color:0xaeb3ae,metalness:.8,roughness:.24});
-const blade=new THREE.Mesh(new THREE.BoxGeometry(3.55,.06,.12),bladeMat);
-blade.position.x=.95;blade.castShadow=true;saw.add(blade);
-for(let x=-.82;x<2.72;x+=.105){
+const blade=new THREE.Mesh(new THREE.BoxGeometry(4.4,.06,.12),bladeMat);
+blade.position.x=1.5;blade.castShadow=true;saw.add(blade);
+for(let x=-.68;x<3.68;x+=.105){
  const tooth=new THREE.Mesh(new THREE.ConeGeometry(.028,.085,3),bladeMat);
  tooth.position.set(x,-.062,0);tooth.rotation.z=Math.PI;tooth.castShadow=true;saw.add(tooth);
 }
@@ -224,7 +225,7 @@ function animate(){
  const dt=clock.getDelta();
  if(playing)time+=dt*params.speed;
  const stroke=Math.sin(time*4.2);
- saw.position.x=.05+stroke*.18;
+ saw.position.x=sawBaseX+stroke*.20;
  saw.rotation.z=-.12+stroke*.025;
 
  if(mixer&&playing)mixer.update(dt);
