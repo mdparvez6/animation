@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/+esm';
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.20.0/+esm';
-import './style.css';
-
 const canvas=document.querySelector('#scene');
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x090a08);
