@@ -35,7 +35,6 @@ key.shadow.mapSize.set(2048,2048);
 key.shadow.camera.left=-8;key.shadow.camera.right=8;
 key.shadow.camera.top=7;key.shadow.camera.bottom=-3;
 scene.add(key);
-const fill=new THREE.AreaLight?null:null;
 const rim=new THREE.PointLight(0x8eb8ff,12,15,2);
 rim.position.set(4,4,-4);
 scene.add(rim);
