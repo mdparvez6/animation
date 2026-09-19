@@ -9,7 +9,7 @@ scene.background=new THREE.Color(0x090a08);
 scene.fog=new THREE.FogExp2(0x090a08,0.035);
 
 const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.05,100);
-camera.position.set(7.2,3.6,8.8);
+camera.position.set(6.4,3.25,7.8);
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -22,7 +22,7 @@ renderer.toneMappingExposure=1.2;
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-controls.target.set(0,1.15,0);
+controls.target.set(.15,1.18,.35);
 controls.minDistance=5;
 controls.maxDistance=15;
 controls.maxPolarAngle=Math.PI*0.48;
@@ -38,6 +38,9 @@ scene.add(key);
 const rim=new THREE.PointLight(0x8eb8ff,12,15,2);
 rim.position.set(4,4,-4);
 scene.add(rim);
+const warm=new THREE.PointLight(0xff9b52,18,8,2);
+warm.position.set(-.5,2.8,2.5);
+scene.add(warm);
 
 const groundMat=new THREE.MeshStandardMaterial({color:0x17140f,roughness:.96});
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(30,30),groundMat);
@@ -47,27 +50,39 @@ scene.add(ground);
 
 function barkTexture(){
  const s=1024,c=document.createElement('canvas');c.width=c.height=s;
- const x=c.getContext('2d'),g=x.createLinearGradient(0,0,s,0);
- g.addColorStop(0,'#24150c');g.addColorStop(.12,'#6b3818');g.addColorStop(.35,'#3d2111');g.addColorStop(.55,'#79401c');g.addColorStop(.8,'#3a1f10');g.addColorStop(1,'#24140b');
- x.fillStyle=g;x.fillRect(0,0,s,s);
- for(let i=0;i<900;i++){
-  const yy=Math.random()*s, amp=2+Math.random()*9, thick=Math.random()*4+1;
-  x.beginPath();x.moveTo(0,yy);
-  for(let xx=0;xx<=s;xx+=32)x.lineTo(xx,yy+Math.sin(xx*.018+Math.random())*amp);
-  x.strokeStyle=Math.random()>.45?'rgba(120,66,29,.28)':'rgba(15,8,4,.35)';
-  x.lineWidth=thick;x.stroke();
+ const x=c.getContext('2d');
+ x.fillStyle='#5a2f16';x.fillRect(0,0,s,s);
+ for(let i=0;i<420;i++){
+  const xx=Math.random()*s;
+  const width=THREE.MathUtils.randFloat(.7,4.5);
+  const light=Math.random()>.42;
+  x.beginPath();x.moveTo(xx,0);
+  for(let yy=0;yy<=s;yy+=28){
+   x.lineTo(xx+Math.sin(yy*.014+xx*.02)*THREE.MathUtils.randFloat(2,9),yy);
+  }
+  x.strokeStyle=light?'rgba(157,83,36,.34)':'rgba(24,11,5,.42)';
+  x.lineWidth=width;x.stroke();
  }
- const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,1);t.colorSpace=THREE.SRGBColorSpace;
+ for(let i=0;i<1800;i++){
+  const xx=Math.random()*s,yy=Math.random()*s;
+  x.fillStyle=Math.random()>.5?'rgba(205,116,51,.08)':'rgba(10,5,2,.10)';
+  x.fillRect(xx,yy,THREE.MathUtils.randFloat(.5,3),THREE.MathUtils.randFloat(2,12));
+ }
+ const t=new THREE.CanvasTexture(c);
+ t.wrapS=t.wrapT=THREE.RepeatWrapping;
+ t.repeat.set(1.15,1.05);
+ t.colorSpace=THREE.SRGBColorSpace;
+ t.anisotropy=renderer.capabilities.getMaxAnisotropy();
  return t;
 }
 const bark=barkTexture();
 
 const logGroup=new THREE.Group();
-logGroup.position.set(.4,1.15,0);
+logGroup.position.set(.45,.92,0);
 scene.add(logGroup);
 
 const logMat=new THREE.MeshStandardMaterial({map:bark,roughness:.86});
-const log=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.08,5.4,64,12),logMat);
+const log=new THREE.Mesh(new THREE.CylinderGeometry(.86,.9,4.9,64,16),logMat);
 log.rotation.z=Math.PI/2;
 log.castShadow=true;log.receiveShadow=true;
 logGroup.add(log);
@@ -76,7 +91,7 @@ const endCanvas=document.createElement('canvas');endCanvas.width=endCanvas.heigh
 const ec=endCanvas.getContext('2d');
 ec.fillStyle='#b8783b';ec.fillRect(0,0,1024,1024);
 ec.translate(512,512);
-for(let r=35;r<500;r+=28){
+for(let r=28;r<420;r+=25){
  ec.beginPath();ec.arc(0,0,r,0,Math.PI*2);
  ec.strokeStyle=r%56?'rgba(94,48,22,.52)':'rgba(229,151,79,.38)';
  ec.lineWidth=5+Math.random()*5;ec.stroke();
@@ -87,29 +102,31 @@ for(let i=0;i<260;i++){
 }
 const endTex=new THREE.CanvasTexture(endCanvas);endTex.colorSpace=THREE.SRGBColorSpace;
 const endMat=new THREE.MeshStandardMaterial({map:endTex,roughness:.78});
-const end=new THREE.Mesh(new THREE.CircleGeometry(1.0,64),endMat);
-end.rotation.y=Math.PI/2;end.position.x=2.71;
+const end=new THREE.Mesh(new THREE.CircleGeometry(.84,64),endMat);
+end.rotation.y=Math.PI/2;end.position.x=2.41;
 end.castShadow=true;
 logGroup.add(end);
 
-const supportMat=new THREE.MeshStandardMaterial({color:0x29251d,roughness:.82});
-for(const x of [-1.45,1.25]){
- const support=new THREE.Mesh(new THREE.BoxGeometry(.45,.9,2.1),supportMat);
- support.position.set(x,.45,0);
- support.rotation.z=x<0?-.22:.22;
- support.castShadow=true;support.receiveShadow=true;
- scene.add(support);
+const supportMat=new THREE.MeshStandardMaterial({color:0x5a321a,roughness:.88});
+function beam(x,z,rotY){
+ const b=new THREE.Mesh(new THREE.BoxGeometry(.22,.9,2.0),supportMat);
+ b.position.set(x,.45,z);b.rotation.z=rotY;b.castShadow=true;b.receiveShadow=true;scene.add(b);
 }
-
+for(const x of [-1.25,1.35]){
+ beam(x,-.55,x<0?.42:-.42);
+ beam(x,.55,x<0?-.42:.42);
+ const cross=new THREE.Mesh(new THREE.BoxGeometry(.38,.18,2.0),supportMat);
+ cross.position.set(x,.78,0);cross.castShadow=true;scene.add(cross);
+}
 const saw=new THREE.Group();
-saw.position.set(.05,2.12,.1);
+saw.position.set(-1.15,1.92,1.02);
 saw.rotation.z=-.12;
 scene.add(saw);
 
 const bladeMat=new THREE.MeshStandardMaterial({color:0xaeb3ae,metalness:.8,roughness:.24});
-const blade=new THREE.Mesh(new THREE.BoxGeometry(3.35,.055,.11),bladeMat);
-blade.position.x=.9;blade.castShadow=true;saw.add(blade);
-for(let x=-.75;x<2.58;x+=.105){
+const blade=new THREE.Mesh(new THREE.BoxGeometry(3.55,.06,.12),bladeMat);
+blade.position.x=.95;blade.castShadow=true;saw.add(blade);
+for(let x=-.82;x<2.72;x+=.105){
  const tooth=new THREE.Mesh(new THREE.ConeGeometry(.028,.085,3),bladeMat);
  tooth.position.set(x,-.062,0);tooth.rotation.z=Math.PI;tooth.castShadow=true;saw.add(tooth);
 }
@@ -119,8 +136,17 @@ handle.rotation.z=Math.PI/2;handle.position.set(-.55,.05,0);handle.castShadow=tr
 const grip=new THREE.Mesh(new THREE.CylinderGeometry(.105,.105,.72,20),handleMat);
 grip.rotation.z=Math.PI/2;grip.position.set(-.63,.03,0);grip.castShadow=true;saw.add(grip);
 
-const cut=new THREE.Mesh(new THREE.BoxGeometry(.08,1.8,2.05),new THREE.MeshStandardMaterial({color:0x251006,roughness:1}));
-cut.position.set(.35,1.16,.02);cut.scale.y=.01;cut.visible=false;scene.add(cut);
+const cutMaterial=new THREE.MeshStandardMaterial({color:0x160b05,roughness:1});
+const cut=new THREE.Mesh(new THREE.BoxGeometry(.035,1.55,.035),cutMaterial);
+cut.position.set(.28,1.34,1.0);
+cut.scale.y=.02;
+cut.visible=false;
+scene.add(cut);
+const cutDustLine=new THREE.Mesh(new THREE.BoxGeometry(.045,1.65,.02),new THREE.MeshBasicMaterial({color:0x8b4a20,transparent:true,opacity:.45}));
+cutDustLine.position.set(.28,1.34,1.015);
+cutDustLine.scale.y=.02;
+cutDustLine.visible=false;
+scene.add(cutDustLine);
 
 const dustGroup=new THREE.Group();scene.add(dustGroup);
 const dust=[];
@@ -144,9 +170,13 @@ function findBone(root,names){
 
 loader.load(HUMAN_URL,gltf=>{
  worker=gltf.scene;
- worker.scale.setScalar(.315);
- worker.position.set(-2.35,.02,.55);
- worker.rotation.y=Math.PI/2;
+ const box=new THREE.Box3().setFromObject(gltf.scene);
+ const size=box.getSize(new THREE.Vector3());
+ const targetHeight=2.45;
+ worker.scale.setScalar(targetHeight/Math.max(size.y,0.001));
+ const scaledBox=new THREE.Box3().setFromObject(worker);
+ worker.position.set(-1.85,-scaledBox.min.y,1.28);
+ worker.rotation.y=Math.PI;
  worker.traverse(o=>{
   if(o.isMesh){o.castShadow=true;o.receiveShadow=true;
    if(o.material){o.material.envMapIntensity=1.1;o.material.roughness=Math.min(o.material.roughness??.7,.78);}
@@ -173,14 +203,14 @@ gui.add(params,'autoRotate').name('Auto rotate');
 
 let playing=true,time=0;
 document.querySelector('#toggle').onclick=()=>{playing=!playing;document.querySelector('#toggle').textContent=playing?'Pause animation':'Play animation'};
-document.querySelector('#reset').onclick=()=>{time=0;camera.position.set(7.2,3.6,8.8);controls.target.set(0,1.15,0);};
+document.querySelector('#reset').onclick=()=>{time=0;camera.position.set(6.4,3.25,7.8);controls.target.set(.15,1.18,.35);};
 
 const clock=new THREE.Clock();
 function spawnDust(){
  for(let i=0;i<3;i++){
   const p=dust.find(v=>!v.visible);if(!p)continue;
   p.visible=true;p.life=1;
-  p.position.set(.35+THREE.MathUtils.randFloat(-.08,.08),1.85+THREE.MathUtils.randFloat(-.1,.1),THREE.MathUtils.randFloat(-.5,.5));
+  p.position.set(.28+THREE.MathUtils.randFloat(-.06,.06),1.9+THREE.MathUtils.randFloat(-.18,.18),THREE.MathUtils.randFloat(.75,1.2));
   p.userData.v.set(THREE.MathUtils.randFloat(.02,.09),THREE.MathUtils.randFloat(.02,.08),THREE.MathUtils.randFloat(-.04,.04));
  }
 }
@@ -194,19 +224,21 @@ function animate(){
 
  if(mixer&&playing)mixer.update(dt);
  if(worker){
-  worker.position.y=.02+Math.abs(Math.sin(time*2.1))*.012;
+  worker.position.y=Math.max(worker.position.y,0)+Math.abs(Math.sin(time*2.1))*.006;
   // Make the loaded humanoid lean into the work and drive both arms with the saw stroke.
   worker.rotation.z=-.055+Math.sin(time*2.1)*.018;
-  if(armL)armL.rotation.x=-.72+stroke*.16;
-  if(armR)armR.rotation.x=-.72-stroke*.16;
-  if(foreL)foreL.rotation.x=-.62-stroke*.18;
-  if(foreR)foreR.rotation.x=-.62+stroke*.18;
+  if(armL)armL.rotation.z+=stroke*.035;
+  if(armR)armR.rotation.z-=stroke*.035;
+  if(foreL)foreL.rotation.z-=stroke*.06;
+  if(foreR)foreR.rotation.z+=stroke*.06;
  }
  if(Math.abs(stroke)>.86&&playing)spawnDust();
 
  const cutDepth=(time%12)/12;
  cut.visible=cutDepth>.015;
  cut.scale.y=.02+cutDepth*.98;
+ cutDustLine.visible=cut.visible;
+ cutDustLine.scale.y=cut.scale.y;
  document.querySelector('#bar').style.width=(cutDepth*100)+'%';
  document.querySelector('#progressText').textContent='Cut depth '+Math.round(cutDepth*100)+'%';
 
