@@ -158,7 +158,7 @@ for(let i=0;i<110;i++){
  dustGroup.add(p);dust.push(p);
 }
 
-let worker=null,mixer=null,armL=null,armR=null,foreL=null,foreR=null,handL=null,handR=null,workerBaseY=0;
+let worker=null,mixer=null,armL=null,armR=null,foreL=null,foreR=null,handL=null,handR=null,workerBaseY=0,workerReady=false;
 const loader=new GLTFLoader();
 const HUMAN_URL='https://raw.githubusercontent.com/kunalkushwaha/vsim/main/packages/assets/library/human.glb';
 
@@ -184,6 +184,7 @@ loader.load(HUMAN_URL,gltf=>{
   }
  });
  scene.add(worker);
+ workerReady=true;
  if(gltf.animations.length){
   mixer=new THREE.AnimationMixer(worker);
   const idle=gltf.animations.find(a=>/idle|stand/i.test(a.name))||gltf.animations[0];
@@ -195,7 +196,10 @@ loader.load(HUMAN_URL,gltf=>{
  foreR=findBone(worker,['forearm.r','forearm_r','lowerarm_r','rightforearm']);
  handL=findBone(worker,['hand.l','hand_l','lefthand']);
  handR=findBone(worker,['hand.r','hand_r','righthand']);
-},undefined,e=>console.error('Human model failed to load',e));
+},undefined,e=>{
+ console.error('Human model failed to load',e);
+ workerReady=false;
+});
 
 const params={speed:1,autoRotate:false};
 const gui=new GUI({title:'Realism Controls'});
@@ -224,7 +228,7 @@ function animate(){
  saw.rotation.z=-.12+stroke*.025;
 
  if(mixer&&playing)mixer.update(dt);
- if(worker){
+ if(workerReady&&worker){
   worker.position.y=workerBaseY+Math.abs(Math.sin(time*2.1))*.006;
   // Make the loaded humanoid lean into the work and drive both arms with the saw stroke.
   worker.rotation.z=-.055+Math.sin(time*2.1)*.018;
